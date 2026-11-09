@@ -75,8 +75,6 @@ class DashboardViewModel(private val c: AppContainer) : ViewModel() {
     private val _state = MutableStateFlow(DashboardState())
     val state = _state.asStateFlow()
 
-    init { load() }
-
     fun load(year: Int? = _state.value.year) = viewModelScope.launch {
         _state.update { it.copy(loading = true, error = null) }
         c.call { dashboard(year) }

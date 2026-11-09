@@ -234,5 +234,5 @@ private fun MainShell(state: AppState, appVm: AppViewModel, container: AppContai
 private fun NavHostController.navigateTab(route: String) = navigate(route) {
     popUpTo(graph.findStartDestination().id) { saveState = true }
     launchSingleTop = true
-    restoreState = !route.contains("?")
+    restoreState = !route.startsWith("archive")
 }

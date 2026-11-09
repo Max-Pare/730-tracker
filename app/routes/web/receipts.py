@@ -236,7 +236,9 @@ def receipt_file(rid: str, kind: str, request: Request, download: int = 0, p: Pr
         headers={
             "Content-Disposition": f'{disp}; filename="documento-{rid[:8]}-{kind}.{ext}"',
             "Cache-Control": "private, no-store",
-            "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",
+            # Chrome refuses to render PDFs in a sandboxed document, so only images get `sandbox`.
+            "Content-Security-Policy": "frame-ancestors 'none'" if ctype == "application/pdf"
+            else "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",
         },
     )
 

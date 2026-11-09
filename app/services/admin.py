@@ -9,7 +9,7 @@ from __future__ import annotations
 import secrets
 from datetime import timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from ..config import Settings
@@ -67,6 +67,32 @@ def find_valid_invite(db: Session, token: str | None) -> Invite | None:
     if inv is None or inv.used_at is not None or inv.expires_at <= utcnow():
         return None
     return inv
+
+
+def claim_invite(db: Session, token: str | None) -> str | None:
+    """Atomically mark a valid invite as used; returns its id, or None if it was already taken.
+
+    A single conditional UPDATE, so two concurrent registrations cannot both redeem it.
+    """
+    if not token or len(token) > 100:
+        return None
+    now = utcnow()
+    res = db.execute(
+        update(Invite)
+        .where(Invite.token_hash == crypto.sha256(token.encode()), Invite.used_at.is_(None), Invite.expires_at > now)
+        .values(used_at=now)
+    )
+    db.commit()
+    if res.rowcount != 1:
+        return None
+    return db.scalar(select(Invite.id).where(Invite.token_hash == crypto.sha256(token.encode())))
+
+
+def release_invite(db: Session, invite_id: str | None) -> None:
+    """Undo claim_invite when the registration then fails (e.g. username taken)."""
+    if invite_id:
+        db.execute(update(Invite).where(Invite.id == invite_id).values(used_at=None))
+        db.commit()
 
 
 def list_invites(db: Session) -> list[Invite]:

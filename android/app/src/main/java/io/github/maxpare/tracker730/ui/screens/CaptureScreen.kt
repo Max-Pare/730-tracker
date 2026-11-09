@@ -65,15 +65,16 @@ import io.github.maxpare.tracker730.data.Format
 import io.github.maxpare.tracker730.data.UploadResult
 import io.github.maxpare.tracker730.ui.components.Banner
 import io.github.maxpare.tracker730.ui.components.Tone
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.RequestBody
+import okio.BufferedSink
+import okio.source
+import java.io.IOException
 import java.io.File
 
 data class PendingFile(val uri: Uri, val name: String, val mime: String, val isCapture: Boolean)
@@ -100,17 +101,9 @@ class CaptureViewModel(private val c: AppContainer) : ViewModel() {
         val files = _state.value.files
         if (files.isEmpty()) return@launch
         _state.update { it.copy(uploading = true, error = null) }
-        val parts = try {
-            withContext(Dispatchers.IO) {
-                files.map { f ->
-                    val bytes = context.contentResolver.openInputStream(f.uri)?.use { it.readBytes() }
-                        ?: throw IllegalStateException("Impossibile leggere ${f.name}")
-                    MultipartBody.Part.createFormData("files", f.name, bytes.toRequestBody(f.mime.toMediaTypeOrNull()))
-                }
-            }
-        } catch (e: Exception) {
-            _state.update { it.copy(uploading = false, error = e.message) }
-            return@launch
+        val resolver = context.applicationContext.contentResolver
+        val parts = files.map { f ->
+            MultipartBody.Part.createFormData("files", f.name, UriRequestBody(resolver, f.uri, f.mime))
         }
         c.call { upload(parts) }
             .onSuccess { res ->
@@ -122,6 +115,20 @@ class CaptureViewModel(private val c: AppContainer) : ViewModel() {
 
     private fun deleteCapture(context: Context, uri: Uri) {
         try { context.contentResolver.delete(uri, null, null) } catch (_: Exception) { }
+    }
+}
+
+/** Streams a content:// file into the request body, so large photos are never fully held in memory. */
+class UriRequestBody(private val resolver: ContentResolver, private val uri: Uri, mime: String) : RequestBody() {
+    private val type = mime.toMediaTypeOrNull()
+    override fun contentType() = type
+    override fun contentLength(): Long =
+        resolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)?.use { c ->
+            if (c.moveToFirst() && !c.isNull(0)) c.getLong(0) else -1L
+        } ?: -1L
+    override fun writeTo(sink: BufferedSink) {
+        val input = resolver.openInputStream(uri) ?: throw IOException("Impossibile leggere il file")
+        input.source().use { sink.writeAll(it) }
     }
 }
 

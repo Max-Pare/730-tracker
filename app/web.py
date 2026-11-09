@@ -107,6 +107,9 @@ def safe_next(url: str | None) -> str:
     if not url:
         return "/dashboard"
     parsed = urlparse(url)
+    # Browsers treat "\" like "/", so "/\evil.example" would become "//evil.example".
+    if "\\" in url or any(ord(c) < 32 for c in url):
+        return "/dashboard"
     if parsed.scheme or parsed.netloc or not url.startswith("/") or url.startswith("//"):
         return "/dashboard"
     return url

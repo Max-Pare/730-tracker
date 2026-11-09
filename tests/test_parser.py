@@ -139,3 +139,8 @@ def test_total_without_cents():
     assert r.amount_cents == 20000 and r.confidence["amount_cents"] < 0.6
     assert parse("Dott. Bianchi\nTotale € 90\nPOS").amount_cents == 9000
     assert parse("Dott. Bianchi\nTotale 75 EUR").amount_cents == 7500
+
+
+def test_document_number_keeps_zero_after_letters():
+    r = parse("STUDIO MEDICO\nFATTURA N. FT0045/2025 del 03/03/2025\nVisita 100,00\nTOTALE 100,00")
+    assert r.document_number == "FT0045/2025"

@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from ... import __version__
 from ...db import get_db
-from ...models import AuthSession, utcnow
+from ...models import AuthSession
 from ...security import auth
 from ...security.auth import Principal
 from ...services import admin as admin_svc
@@ -197,19 +197,16 @@ def api_login(body: LoginIn, request: Request, db: Session = Depends(get_db)):
 def api_register(body: RegisterIn, request: Request, db: Session = Depends(get_db)):
     s = request.app.state.settings
     first = not admin_svc.has_users(db)
-    inv = None
+    invite_id = None
     if not first:
-        mode = admin_svc.registration_mode(db)
-        inv = admin_svc.find_valid_invite(db, body.invite) if body.invite else None
-        if mode != "open" and inv is None:
+        invite_id = admin_svc.claim_invite(db, body.invite)
+        if admin_svc.registration_mode(db) != "open" and invite_id is None:
             raise HTTPException(403, {"code": "registration_closed", "message": "Registrazione non consentita senza un invito valido."})
     try:
         acct = auth.create_user(db, s, body.username, body.password, role="admin" if first else "user")
     except auth.AuthError as exc:
+        admin_svc.release_invite(db, invite_id)
         raise _auth_error(exc) from None
-    if inv:
-        inv.used_at = utcnow()
-        db.commit()
     token, _ = auth.create_session(db, s, acct.user, acct.dek, "api", _label(body.device_name, "App Android"))
     return TokenOut(token=token, user=_user_out(acct.user), recovery_code=acct.recovery_code)
 

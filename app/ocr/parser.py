@@ -502,9 +502,13 @@ _DOCNUM_RE = re.compile(
 
 def extract_document_number(lines: list[str]) -> tuple[str | None, float]:
     for ln in lines:
-        m = _DOCNUM_RE.search(_kw(ln))
+        kw = _kw(ln)
+        m = _DOCNUM_RE.search(kw)
         if m:
-            num = m.group(1).strip(".-/")
+            # Match on the normalised text, but take the value from the original line:
+            # _kw rewrites "0" after letters to "O" ("FT0045" -> "FTO045").
+            raw = ln.upper() if len(ln.upper()) == len(kw) else kw
+            num = raw[m.start(1) : m.end(1)].strip(".-/")
             if num and any(c.isdigit() for c in num) and not re.fullmatch(r"\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}", num):
                 return num, 0.7
     return None, 0.0

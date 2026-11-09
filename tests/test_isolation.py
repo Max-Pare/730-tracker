@@ -115,3 +115,21 @@ def test_admin_disable_and_delete(two_users, settings):
     admin.post(f"/admin/users/{alice_id}/delete", data={"csrf": csrf, "confirm": "alice"})
     assert ">alice<" not in admin.get("/admin").text
     assert not [p for p in settings.files_dir.rglob("*") if p.is_file()]
+
+
+def test_expired_sessions_are_purged_on_new_login(app, settings):
+    from datetime import timedelta
+
+    from app.models import AuthSession, utcnow
+
+    c = make_client(app)
+    from conftest import register
+
+    register(c, "solo")
+    with app.state.session_factory() as db:
+        for s in db.scalars(select(AuthSession)).all():
+            s.expires_at = utcnow() - timedelta(minutes=1)
+        db.commit()
+    make_client(app).post("/login", data={"username": "solo", "password": PASSWORD})
+    with app.state.session_factory() as db:
+        assert len(db.scalars(select(AuthSession)).all()) == 1  # only the new one

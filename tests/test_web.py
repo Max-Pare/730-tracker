@@ -237,3 +237,45 @@ def test_delete_own_account_removes_files(app, settings):
     assert r.status_code == 303
     assert not [p for p in settings.files_dir.rglob("*") if p.is_file()]
     assert c.post("/login", data={"username": "solo", "password": PASSWORD}).status_code == 400
+
+
+def test_open_redirect_backslash_blocked(app):
+    from app.web import safe_next
+
+    assert safe_next("/\\evil.example/x") == "/dashboard"
+    assert safe_next("/receipts?year=2025") == "/receipts?year=2025"
+    c = make_client(app)
+    register(c, "admin")
+    c.post("/logout")
+    r = c.post("/login", data={"username": "admin", "password": PASSWORD, "next": "/\\evil.example"}, follow_redirects=False)
+    assert r.headers["location"] == "/dashboard"
+
+
+def test_invite_claim_is_atomic_and_released_on_failure(app, settings):
+    from app.services import admin as admin_svc
+
+    admin = make_client(app)
+    register(admin, "admin")
+    token = create_invite(admin)
+    with app.state.session_factory() as db:
+        first = admin_svc.claim_invite(db, token)
+        assert first is not None
+        assert admin_svc.claim_invite(db, token) is None  # second concurrent redeemer loses
+        admin_svc.release_invite(db, first)
+    # A failed registration (bad username) gives the invite back.
+    c = make_client(app)
+    assert register(c, "x", invite=token)[0].status_code == 400
+    assert register(c, "valido", invite=token)[0].status_code == 200
+
+
+def test_pdf_original_is_not_sandboxed(client):
+    register(client, "admin")
+    csrf = csrf_of(client)
+    from test_ocr_e2e import _text_pdf
+
+    pdf = _text_pdf(S.LAB_ANALYSIS.replace("€", "EUR"))
+    r = client.post("/receipts/upload", data={"csrf": csrf}, files=[("files", ("f.pdf", pdf, "application/pdf"))], follow_redirects=False)
+    rid = r.headers["location"].rsplit("/", 1)[-1]
+    resp = client.get(f"/receipts/{rid}/file/original")
+    assert resp.headers["content-type"] == "application/pdf"
+    assert "sandbox" not in resp.headers["content-security-policy"]

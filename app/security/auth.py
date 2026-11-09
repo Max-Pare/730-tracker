@@ -8,7 +8,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import timedelta
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from ..config import Settings
@@ -251,6 +251,7 @@ def create_session(
     db: Session, settings: Settings, user: User, dek: bytes, kind: str, label: str | None = None
 ) -> tuple[str, AuthSession]:
     assert kind in ("web", "api")
+    purge_expired_sessions(db)
     sid = crypto.new_id()
     secret = secrets.token_bytes(32)
     idle, _ = _ttl(settings, kind)
@@ -321,9 +322,5 @@ def session_label(principal_dek: bytes, sess: AuthSession) -> str | None:
 
 
 def purge_expired_sessions(db: Session) -> int:
-    now = utcnow()
-    rows = db.scalars(select(AuthSession).where(AuthSession.expires_at <= now)).all()
-    for r in rows:
-        db.delete(r)
-    db.commit()
-    return len(rows)
+    """Delete idle-expired sessions (not committed: callers commit). Runs on every new session."""
+    return db.execute(delete(AuthSession).where(AuthSession.expires_at <= utcnow())).rowcount or 0

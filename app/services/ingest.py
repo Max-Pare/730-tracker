@@ -25,6 +25,19 @@ class UploadError(ValueError):
     pass
 
 
+def _ocr_info(outcome: engine.OcrOutcome) -> OcrInfo:
+    pr = outcome.parsed
+    return OcrInfo(
+        text=outcome.text[:20000],
+        confidence=outcome.confidence,
+        engine=outcome.engine,
+        field_confidence=pr.confidence,
+        warnings=pr.warnings + outcome.notes,
+        items=[i.__dict__ for i in pr.items][:60],
+        processed_at=utcnow().isoformat(),
+    )
+
+
 def _safe_filename(name: str | None) -> str | None:
     if not name:
         return None
@@ -73,15 +86,7 @@ def ingest(db: Session, settings: Settings, p: Principal, profile: Profile, data
                 ssn_provider=pr.ssn_provider,
                 beneficiary=pr.beneficiary or "self",
                 patient_tax_code=pr.patient_tax_code,
-                ocr=OcrInfo(
-                    text=outcome.text[:20000],
-                    confidence=outcome.confidence,
-                    engine=outcome.engine,
-                    field_confidence=pr.confidence,
-                    warnings=pr.warnings + outcome.notes,
-                    items=[i.__dict__ for i in pr.items][:60],
-                    processed_at=utcnow().isoformat(),
-                ),
+                ocr=_ocr_info(outcome),
             )
         )
         original, original_type, scan = outcome.original, outcome.original_type, outcome.scan_jpeg
@@ -135,15 +140,7 @@ def reprocess(db: Session, settings: Settings, p: Principal, profile: Profile, r
         "patient_tax_code": pr.patient_tax_code or d.patient_tax_code,
         "beneficiary": pr.beneficiary or d.beneficiary,
         "status": "bozza",
-        "ocr": OcrInfo(
-            text=outcome.text[:20000],
-            confidence=outcome.confidence,
-            engine=outcome.engine,
-            field_confidence=pr.confidence,
-            warnings=pr.warnings + outcome.notes,
-            items=[i.__dict__ for i in pr.items][:60],
-            processed_at=utcnow().isoformat(),
-        ),
+        "ocr": _ocr_info(outcome),
     }
     if outcome.scan_jpeg:
         old_scan = d.files.get("scan")

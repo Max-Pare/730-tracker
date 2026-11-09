@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, Form, Request
 from sqlalchemy.orm import Session
 
 from ...db import get_db
-from ...models import utcnow
 from ...security import auth
 from ...services import admin as admin_svc
 from ...web import clear_session_cookie, current_principal, redirect, render, safe_next, set_session_cookie, settings_of
@@ -109,14 +108,14 @@ def register(
         return render(request, "auth/register.html", status_code=403, error=error, **ctx)
     if password != password2:
         return render(request, "auth/register.html", status_code=400, error="Le password non coincidono.", **ctx)
-    inv = admin_svc.find_valid_invite(db, invite) if invite else None
+    invite_id = admin_svc.claim_invite(db, invite) if invite and not first else None
+    if invite and not first and invite_id is None and admin_svc.registration_mode(db) != "open":
+        return render(request, "auth/register.html", status_code=403, error="L'invito non è valido o è scaduto.", **ctx)
     try:
         acct = auth.create_user(db, s, username, password, role="admin" if first else "user")
     except auth.AuthError as exc:
+        admin_svc.release_invite(db, invite_id)
         return render(request, "auth/register.html", status_code=400, error=exc.message, **ctx)
-    if inv:
-        inv.used_at = utcnow()
-        db.commit()
     token, _ = auth.create_session(db, s, acct.user, acct.dek, "web", _device_label(request))
     request.state.principal = auth.resolve_token(db, s, token, "web")
     resp = render(request, "auth/recovery_code.html", recovery_code=acct.recovery_code, first_user=first)

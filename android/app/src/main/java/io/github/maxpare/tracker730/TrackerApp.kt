@@ -52,6 +52,7 @@ class ApiError(message: String, cause: Throwable?) : Exception(message, cause)
 class TrackerApp : Application(), SingletonImageLoader.Factory {
     lateinit var container: AppContainer
         private set
+    private val fallbackHttp by lazy { okhttp3.OkHttpClient() }
 
     override fun onCreate() {
         super.onCreate()
@@ -62,7 +63,10 @@ class TrackerApp : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader =
         ImageLoader.Builder(context)
             .components {
-                add(OkHttpNetworkFetcherFactory(callFactory = { container.client?.okHttp ?: okhttp3.OkHttpClient() }))
+                // Coil evaluates callFactory once; delegate per call so a server switch is honoured.
+                add(OkHttpNetworkFetcherFactory(callFactory = {
+                    okhttp3.Call.Factory { request -> (container.client?.okHttp ?: fallbackHttp).newCall(request) }
+                }))
             }
             .diskCache(null)
             .build()
