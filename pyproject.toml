@@ -1,0 +1,11 @@
+[project]
+name = "tracker730"
+version = "0.1.0"
+description = "Self-hosted tracker for Italian 730 deductible medical expenses, with receipt OCR and per-user encryption"
+license = "AGPL-3.0-or-later"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
