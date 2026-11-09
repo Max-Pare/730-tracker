@@ -1,0 +1,134 @@
+{
+ "categories": [
+  {
+   "code": "farmaci",
+   "label": "Farmaci e medicinali",
+   "group": "sanitarie",
+   "trace_exempt": true,
+   "hint": "Anche omeopatici e da banco (SOP/OTC), con scontrino parlante."
+  },
+  {
+   "code": "dispositivi_medici",
+   "label": "Dispositivi medici",
+   "group": "sanitarie",
+   "trace_exempt": true,
+   "hint": "Con marcatura CE (es. misuratori, test, ausili)."
+  },
+  {
+   "code": "occhiali_lenti",
+   "label": "Occhiali e lenti",
+   "group": "sanitarie",
+   "trace_exempt": true,
+   "hint": "Occhiali da vista e lenti a contatto sono dispositivi medici."
+  },
+  {
+   "code": "ticket_ssn",
+   "label": "Ticket SSN",
+   "group": "sanitarie",
+   "trace_exempt": true,
+   "hint": "Compartecipazione alla spesa presso strutture pubbliche."
+  },
+  {
+   "code": "visite_specialistiche",
+   "label": "Visite mediche e specialistiche",
+   "group": "sanitarie",
+   "trace_exempt": false,
+   "hint": ""
+  },
+  {
+   "code": "esami_analisi",
+   "label": "Esami, analisi e diagnostica",
+   "group": "sanitarie",
+   "trace_exempt": false,
+   "hint": ""
+  },
+  {
+   "code": "cure_dentistiche",
+   "label": "Cure dentistiche",
+   "group": "sanitarie",
+   "trace_exempt": false,
+   "hint": ""
+  },
+  {
+   "code": "prestazioni_sanitarie",
+   "label": "Altre prestazioni sanitarie",
+   "group": "sanitarie",
+   "trace_exempt": false,
+   "hint": "Fisioterapia, psicologo, logopedista, infermiere…"
+  },
+  {
+   "code": "ricoveri_interventi",
+   "label": "Ricoveri e interventi",
+   "group": "sanitarie",
+   "trace_exempt": false,
+   "hint": ""
+  },
+  {
+   "code": "veterinarie_farmaci",
+   "label": "Veterinarie – farmaci",
+   "group": "veterinarie",
+   "trace_exempt": true,
+   "hint": ""
+  },
+  {
+   "code": "veterinarie_prestazioni",
+   "label": "Veterinarie – visite e prestazioni",
+   "group": "veterinarie",
+   "trace_exempt": false,
+   "hint": ""
+  },
+  {
+   "code": "non_detraibile",
+   "label": "Non detraibile",
+   "group": null,
+   "trace_exempt": true,
+   "hint": "Parafarmaci, cosmetici, integratori…"
+  }
+ ],
+ "payment_methods": [
+  {
+   "code": "tracciabile",
+   "label": "Tracciabile (carta, bancomat, bonifico…)"
+  },
+  {
+   "code": "contanti",
+   "label": "Contanti"
+  },
+  {
+   "code": "sconosciuto",
+   "label": "Non indicato"
+  }
+ ],
+ "statuses": [
+  {
+   "code": "bozza",
+   "label": "Bozza da rivedere"
+  },
+  {
+   "code": "da_verificare",
+   "label": "Da verificare"
+  },
+  {
+   "code": "verificato",
+   "label": "Verificato"
+  }
+ ],
+ "relations": [
+  {
+   "code": "coniuge",
+   "label": "Coniuge"
+  },
+  {
+   "code": "figlio",
+   "label": "Figlio/a"
+  },
+  {
+   "code": "genitore",
+   "label": "Genitore"
+  },
+  {
+   "code": "altro",
+   "label": "Altro familiare"
+  }
+ ]
+}

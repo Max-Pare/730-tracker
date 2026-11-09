@@ -1,0 +1,8 @@
+{
+ "name": "730 Tracker",
+ "version": "0.1.0",
+ "api": 1,
+ "registration_mode": "invite",
+ "needs_setup": true,
+ "max_upload_mb": 20
+}

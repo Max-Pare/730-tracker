@@ -1,0 +1,133 @@
+{
+ "items": [
+  {
+   "id": "84f6c57a1712b82c15aee638bee09338",
+   "created_at": "2026-11-09T10:45:43.652456Z",
+   "updated_at": "2026-11-09T10:45:43.652456Z",
+   "data": {
+    "status": "verificato",
+    "date": "2025-05-21",
+    "amount_cents": 15200,
+    "deductible_cents": null,
+    "provider_name": "Dott. Verdi",
+    "provider_vat": null,
+    "provider_tax_code": null,
+    "document_number": null,
+    "category": "visite_specialistiche",
+    "payment_method": "tracciabile",
+    "ssn_provider": false,
+    "beneficiary": "self",
+    "patient_tax_code": null,
+    "description": null,
+    "notes": null,
+    "tags": [],
+    "source": "manuale",
+    "image_sha256": null,
+    "files": {},
+    "file_types": {},
+    "original_filename": null,
+    "ocr": null
+   },
+   "beneficiary_label": "Mario Rossi",
+   "evaluation": {
+    "status": "detraibile",
+    "label": "Detraibile",
+    "group": "sanitarie",
+    "eligible_cents": 15200,
+    "reasons": [],
+    "warnings": [
+     "Sul documento dovrebbe comparire il codice fiscale di chi ha sostenuto la spesa."
+    ]
+   },
+   "has_scan": false,
+   "has_original": false,
+   "original_type": null,
+   "duplicates": []
+  },
+  {
+   "id": "dfcc7a63a2e3e7674d9631c311c685a5",
+   "created_at": "2026-11-09T10:45:43.608886Z",
+   "updated_at": "2026-11-09T10:45:43.614864Z",
+   "data": {
+    "status": "bozza",
+    "date": "2025-03-09",
+    "amount_cents": 2340,
+    "deductible_cents": null,
+    "provider_name": "FARMACIA SAN MARCO DR. ROSSI",
+    "provider_vat": "01234567897",
+    "provider_tax_code": null,
+    "document_number": "0123-0045",
+    "category": "farmaci",
+    "payment_method": "tracciabile",
+    "ssn_provider": true,
+    "beneficiary": "self",
+    "patient_tax_code": "RSSMRA80A01H501U",
+    "description": null,
+    "notes": null,
+    "tags": [],
+    "source": "ocr",
+    "image_sha256": "6273d69dcc91b1eb71984feebd00eebd679b07af44158eb1f635a6a2dc8422b7",
+    "files": {
+     "original": "41da922db9b38bd8d18dcffb27966588",
+     "scan": "d534f767e17f64f8639b7c32f21a7d0f"
+    },
+    "file_types": {
+     "original": "image/jpeg",
+     "scan": "image/jpeg"
+    },
+    "original_filename": "s.jpg",
+    "ocr": {
+     "text": "FARMACIA SAN MARCO DR. ROSSI\nVia Roma 12 - 20121 Milano MI\nP.IVA 01234567897\nTel. 02 1234567\nDOCUMENTO COMMERCIALE\ndi vendita o prestazione\nDESCRIZIONE IVA Prezzo(€)\nFARMACO 10% 12,50\nFARMACO SOP 10% 8,90\nTICKET 2,00\nTOTALE COMPLESSIVO 23,40\ndi cui IVA 1,95\nPagamento contante 0,00\nPagamento elettronico 23,40\nImporto pagato 23,40\n09-03-2025 10:22\nDOCUMENTO N. 0123-0045\nRT 99MEY012345\nC.F. CLIENTE: RSSMRA80A01H501U",
+     "confidence": 0.944,
+     "engine": "tesseract 5.3.4 (gray-psm4, rot 0°, skew 0.0°)",
+     "field_confidence": {
+      "date": 0.75,
+      "amount_cents": 0.95,
+      "provider_name": 0.8,
+      "patient_tax_code": 0.95,
+      "provider_vat": 0.9,
+      "document_number": 0.7,
+      "payment_method": 0.9,
+      "category": 0.95
+     },
+     "warnings": [],
+     "items": [
+      {
+       "description": "FARMACO",
+       "amount_cents": 1250,
+       "deductible": true
+      },
+      {
+       "description": "FARMACO SOP",
+       "amount_cents": 890,
+       "deductible": true
+      },
+      {
+       "description": "TICKET",
+       "amount_cents": 200,
+       "deductible": true
+      }
+     ],
+     "processed_at": "2026-11-09T10:45:43.608806+00:00"
+    }
+   },
+   "beneficiary_label": "Mario Rossi",
+   "evaluation": {
+    "status": "detraibile",
+    "label": "Detraibile",
+    "group": "sanitarie",
+    "eligible_cents": 2340,
+    "reasons": [],
+    "warnings": []
+   },
+   "has_scan": true,
+   "has_original": true,
+   "original_type": "image/jpeg",
+   "duplicates": []
+  }
+ ],
+ "total": 2,
+ "page": 1,
+ "pages": 1,
+ "total_amount_cents": 17540
+}

@@ -1,0 +1,21 @@
+{
+ "user": {
+  "id": "464534e7df217e966155fcb1d80e0cba",
+  "username": "mario",
+  "role": "admin",
+  "created_at": "2026-11-09T10:45:41.735552Z"
+ },
+ "profile": {
+  "full_name": "Mario Rossi",
+  "tax_code": "RSSMRA80A01H501U",
+  "family": [
+   {
+    "id": "c327798f5189",
+    "name": "Luca",
+    "tax_code": "RSSLCU12T10H501I",
+    "relation": "figlio",
+    "dependent": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<resources>
+    <string name="app_name">730 Tracker</string>
+    <string name="share_target_label">Aggiungi a 730 Tracker</string>
+
+    <!-- common -->
+    <string name="retry">Riprova</string>
+    <string name="cancel">Annulla</string>
+    <string name="save">Salva</string>
+    <string name="delete">Elimina</string>
+    <string name="close">Chiudi</string>
+    <string name="confirm">Conferma</string>
+    <string name="back">Indietro</string>
+    <string name="refresh">Aggiorna</string>
+    <string name="low_confidence">Da controllare</string>
+
+    <!-- navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_archive">Archivio</string>
+    <string name="nav_add">Aggiungi</string>
+    <string name="nav_account">Account</string>
+
+    <!-- server setup -->
+    <string name="setup_title">Collega il tuo server</string>
+    <string name="setup_body">730 Tracker è self-hosted: i tuoi dati restano sul server che usi tu (o la tua famiglia). Inserisci il suo indirizzo.</string>
+    <string name="setup_url">Indirizzo del server</string>
+    <string name="setup_url_hint">es. https://730.casa.example o 192.168.1.10:8000</string>
+    <string name="setup_connect">Collega</string>
+    <string name="setup_http_warning">Connessione non cifrata (http): usala solo sulla rete di casa.</string>
+    <string name="change_server">Cambia server</string>
+
+    <!-- auth -->
+    <string name="login_title">Accedi</string>
+    <string name="username">Nome utente</string>
+    <string name="password">Password</string>
+    <string name="password_repeat">Ripeti la password</string>
+    <string name="login_button">Accedi</string>
+    <string name="login_forgot">Password dimenticata? Usa il codice di recupero</string>
+    <string name="login_register">Crea un account</string>
+    <string name="login_privacy">I tuoi dati sono cifrati con una chiave legata alla tua password: nemmeno l\'amministratore può leggerli.</string>
+    <string name="register_title">Crea il tuo account</string>
+    <string name="register_first_title">Configura 730 Tracker</string>
+    <string name="register_first_body">Sei il primo utente: questo account sarà amministratore (gestisce account e inviti, ma non vede i dati degli altri).</string>
+    <string name="register_invite">Codice invito</string>
+    <string name="register_invite_hint">Te lo fornisce l\'amministratore</string>
+    <string name="register_password_hint">Almeno 10 caratteri</string>
+    <string name="register_warning">Riceverai un codice di recupero: se perdi sia la password sia il codice, i dati non sono recuperabili da nessuno.</string>
+    <string name="register_button">Crea account</string>
+    <string name="passwords_mismatch">Le password non coincidono.</string>
+    <string name="recover_title">Recupera l\'accesso</string>
+    <string name="recover_body">Inserisci il codice di recupero e scegli una nuova password. Gli altri dispositivi verranno disconnessi.</string>
+    <string name="recover_code">Codice di recupero</string>
+    <string name="new_password">Nuova password</string>
+    <string name="recover_button">Reimposta password</string>
+    <string name="recovery_code_title">Il tuo codice di recupero</string>
+    <string name="recovery_code_body">Ti serve se dimentichi la password. Viene mostrato una sola volta: conservalo in un posto sicuro e non condividerlo.</string>
+    <string name="recovery_code_copy">Copia</string>
+    <string name="recovery_code_copied">Codice copiato</string>
+    <string name="recovery_code_saved">Ho salvato il codice</string>
+
+    <!-- dashboard -->
+    <string name="dashboard_title">Spese %1$d</string>
+    <string name="dashboard_return">Spese pagate nel %1$d: vanno nel modello %2$s.</string>
+    <string name="dashboard_drafts">%1$s da rivedere dopo la scansione</string>
+    <string name="dashboard_review">Rivedi</string>
+    <string name="kpi_detraction">Detrazione stimata (19%)</string>
+    <string name="kpi_detraction_sub">su spese sanitarie oltre la franchigia</string>
+    <string name="kpi_eligible">Spese detraibili</string>
+    <string name="kpi_total">Totale speso</string>
+    <string name="kpi_uncertain">Da verificare</string>
+    <string name="kpi_non_deductible">Non detraibili</string>
+    <string name="franchise_title">Franchigia</string>
+    <string name="franchise_missing">Mancano %1$s per superare la franchigia di %2$s.</string>
+    <string name="franchise_done">Franchigia superata. Base detraibile: %1$s.</string>
+    <string name="instalments">Spese oltre € 15.493,71: puoi ripartire la detrazione in 4 rate annuali.</string>
+    <string name="vet_line">Veterinarie: detraibili %1$s (max € 550), detrazione %2$s.</string>
+    <string name="by_month">Per mese</string>
+    <string name="by_category">Per categoria</string>
+    <string name="by_person">Per persona</string>
+    <string name="legend_total">Totale</string>
+    <string name="legend_eligible">Detraibile</string>
+    <string name="issues_title">Da controllare</string>
+    <string name="issues_none">Nessuna segnalazione per quest\'anno.</string>
+    <string name="empty_title">Inizia dal primo scontrino</string>
+    <string name="empty_body">Fotografa uno scontrino della farmacia o una fattura medica: i dati vengono letti automaticamente, tu controlli e confermi.</string>
+    <string name="export_title">Esporta per il CAF</string>
+    <string name="export_csv">CSV</string>
+    <string name="export_zip">ZIP con documenti</string>
+    <string name="export_failed">Esportazione non riuscita</string>
+    <string name="disclaimer">Stima indicativa (19% oltre € 129,11; pagamenti tracciabili dal 2020). Verifica sempre con il 730 precompilato e con il tuo CAF.</string>
+
+    <!-- archive -->
+    <string name="archive_title">Archivio</string>
+    <string name="search_hint">Cerca fornitore, P.IVA, testo…</string>
+    <string name="filter_year">Anno</string>
+    <string name="filter_status">Stato</string>
+    <string name="filter_all">Tutti</string>
+    <string name="archive_summary">%1$s · totale %2$s</string>
+    <string name="archive_empty">Nessun documento.</string>
+    <string name="no_name">Documento senza nome</string>
+    <string name="no_date">senza data</string>
+    <string name="no_category">senza categoria</string>
+    <string name="load_more">Carica altri</string>
+
+    <!-- capture -->
+    <string name="capture_title">Aggiungi documenti</string>
+    <string name="capture_body">Fotografa scontrini, ricevute e fatture mediche oppure scegli foto e PDF. Poi controlli i dati estratti.</string>
+    <string name="capture_camera">Scatta una foto</string>
+    <string name="capture_gallery">Scegli foto</string>
+    <string name="capture_pdf">Scegli PDF</string>
+    <string name="capture_tips">Appoggia lo scontrino su un piano scuro, inquadralo tutto ed evita riflessi.</string>
+    <string name="capture_process">Elabora (%1$d)</string>
+    <string name="capture_processing">Lettura dei documenti in corso…</string>
+    <string name="capture_manual">Inserisci a mano</string>
+    <string name="capture_remove">Rimuovi</string>
+    <string name="capture_no_camera">Nessuna app fotocamera disponibile.</string>
+    <string name="capture_done">%1$s elaborati</string>
+
+    <!-- receipt edit -->
+    <string name="receipt_review">Controlla i dati</string>
+    <string name="receipt_new">Nuova spesa</string>
+    <string name="receipt_scan">Scansione</string>
+    <string name="receipt_original">Originale</string>
+    <string name="field_date">Data</string>
+    <string name="field_date_hint">gg/mm/aaaa</string>
+    <string name="field_amount">Importo €</string>
+    <string name="field_deductible">Importo detraibile € (se diverso)</string>
+    <string name="field_deductible_hint">Ad esempio se lo scontrino include parafarmaci</string>
+    <string name="field_category">Categoria</string>
+    <string name="field_provider">Fornitore</string>
+    <string name="field_payment">Pagamento</string>
+    <string name="field_beneficiary">Spesa per</string>
+    <string name="field_ssn">Struttura pubblica o accreditata SSN</string>
+    <string name="field_ssn_hint">Detraibile anche se pagata in contanti</string>
+    <string name="field_vat">P.IVA fornitore</string>
+    <string name="field_docnum">N. documento</string>
+    <string name="field_patient_cf">Codice fiscale sul documento</string>
+    <string name="field_patient_cf_hint">Di chi sostiene la spesa (te o il familiare a carico)</string>
+    <string name="field_description">Descrizione</string>
+    <string name="field_tags">Etichette (separate da virgola)</string>
+    <string name="field_notes">Note</string>
+    <string name="choose">— scegli —</string>
+    <string name="confirm_save">Conferma e salva</string>
+    <string name="save_later">Salva come da verificare</string>
+    <string name="reprocess">Rileggi con OCR</string>
+    <string name="delete_receipt_q">Eliminare definitivamente questo documento e le sue immagini?</string>
+    <string name="duplicate_warning">Possibile duplicato: esiste già un documento simile.</string>
+    <string name="ocr_notes">Note della lettura automatica</string>
+    <string name="ocr_text">Testo riconosciuto</string>
+    <string name="saved">Salvato</string>
+    <string name="more_details">Altri dettagli</string>
+    <string name="open_pdf">Il documento originale è un PDF.</string>
+
+    <!-- account -->
+    <string name="account_title">Account</string>
+    <string name="profile_title">I tuoi dati</string>
+    <string name="profile_body">Servono a riconoscere il tuo codice fiscale sugli scontrini. Sono cifrati.</string>
+    <string name="full_name">Nome e cognome</string>
+    <string name="tax_code">Codice fiscale</string>
+    <string name="tax_code_invalid">Codice fiscale non valido</string>
+    <string name="family_title">Familiari</string>
+    <string name="family_body">Le spese dei familiari fiscalmente a carico sono detraibili da te.</string>
+    <string name="family_add">Aggiungi familiare</string>
+    <string name="family_name">Nome</string>
+    <string name="family_relation">Relazione</string>
+    <string name="family_dependent">Fiscalmente a carico</string>
+    <string name="dependent_yes">a carico</string>
+    <string name="dependent_no">non a carico</string>
+    <string name="password_title">Password</string>
+    <string name="current_password">Password attuale</string>
+    <string name="change_password">Cambia password</string>
+    <string name="password_changed">Password aggiornata. Gli altri dispositivi sono stati disconnessi.</string>
+    <string name="new_recovery_code">Genera nuovo codice di recupero</string>
+    <string name="devices_title">Dispositivi collegati</string>
+    <string name="this_device">questo</string>
+    <string name="disconnect">Disconnetti</string>
+    <string name="logout">Esci</string>
+    <string name="delete_account">Elimina account e dati</string>
+    <string name="delete_account_body">Elimina definitivamente account, documenti e immagini. Non è reversibile.</string>
+    <string name="server_label">Server: %1$s</string>
+    <string name="about">730 Tracker %1$s · software libero (AGPL-3.0-or-later)</string>
+</resources>

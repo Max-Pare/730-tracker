@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+services:
+  tracker:
+    build: .
+    image: 730-tracker:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - tracker-data:/data
+    environment:
+      TRACKER_MAX_UPLOAD_MB: "20"
+      # When a reverse proxy (Caddy, nginx, Traefik) terminates TLS in front of
+      # this container, trust its X-Forwarded-* headers:
+      # FORWARDED_ALLOW_IPS: "*"
+
+volumes:
+  tracker-data:

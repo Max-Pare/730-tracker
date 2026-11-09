@@ -1,0 +1,12 @@
+{
+ "detail": [
+  {
+   "loc": [
+    "body",
+    "category"
+   ],
+   "msg": "Value error, categoria non valida",
+   "type": "value_error"
+  }
+ ]
+}

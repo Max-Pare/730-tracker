@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: Install Tesseract (Italian)
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-ita fonts-dejavu-core
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest
+        env:
+          OMP_THREAD_LIMIT: "1"
+
+  android:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew --no-daemon assembleDebug testDebugUnitTest lintDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 730-tracker-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+
+  docker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t 730-tracker:ci .
+      - name: Smoke test
+        run: |
+          docker run -d --name t730 -p 8000:8000 730-tracker:ci
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:8000/healthz && exit 0; sleep 1; done
+          docker logs t730; exit 1

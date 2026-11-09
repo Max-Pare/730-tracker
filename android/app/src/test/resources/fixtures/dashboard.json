@@ -1,0 +1,145 @@
+{
+ "years": [
+  2025
+ ],
+ "drafts_total": 1,
+ "summary": {
+  "year": 2025,
+  "return_label": "730/2026 (redditi 2025)",
+  "receipts_count": 1,
+  "drafts_count": 1,
+  "to_verify_count": 0,
+  "non_deductible_count": 0,
+  "total_spent_cents": 15200,
+  "sanitarie_eligible_cents": 15200,
+  "sanitarie_base_cents": 2289,
+  "sanitarie_detraction_cents": 435,
+  "vet_eligible_cents": 0,
+  "vet_base_cents": 0,
+  "vet_detraction_cents": 0,
+  "detraction_total_cents": 435,
+  "uncertain_cents": 0,
+  "non_deductible_cents": 0,
+  "franchise_cents": 12911,
+  "franchise_remaining_cents": 0,
+  "instalments_possible": false,
+  "by_month": [
+   {
+    "key": "1",
+    "label": "Gen",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "2",
+    "label": "Feb",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "3",
+    "label": "Mar",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "4",
+    "label": "Apr",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "5",
+    "label": "Mag",
+    "count": 1,
+    "total_cents": 15200,
+    "eligible_cents": 15200
+   },
+   {
+    "key": "6",
+    "label": "Giu",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "7",
+    "label": "Lug",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "8",
+    "label": "Ago",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "9",
+    "label": "Set",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "10",
+    "label": "Ott",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "11",
+    "label": "Nov",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   },
+   {
+    "key": "12",
+    "label": "Dic",
+    "count": 0,
+    "total_cents": 0,
+    "eligible_cents": 0
+   }
+  ],
+  "by_category": [
+   {
+    "key": "visite_specialistiche",
+    "label": "Visite mediche e specialistiche",
+    "count": 1,
+    "total_cents": 15200,
+    "eligible_cents": 15200
+   }
+  ],
+  "by_beneficiary": [
+   {
+    "key": "self",
+    "label": "Mario Rossi",
+    "count": 1,
+    "total_cents": 15200,
+    "eligible_cents": 15200
+   }
+  ],
+  "issues": [
+   {
+    "receipt_id": "84f6c57a1712b82c15aee638bee09338",
+    "title": "Dott. Verdi",
+    "message": "Sul documento dovrebbe comparire il codice fiscale di chi ha sostenuto la spesa.",
+    "severity": "info"
+   },
+   {
+    "receipt_id": "dfcc7a63a2e3e7674d9631c311c685a5",
+    "title": "FARMACIA SAN MARCO DR. ROSSI",
+    "message": "Bozza da rivedere e confermare.",
+    "severity": "info"
+   }
+  ]
+ }
+}
