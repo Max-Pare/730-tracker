@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Aggiungi · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Aggiungi documenti</h1></div>
+<form class="card" method="post" action="/receipts/upload" enctype="multipart/form-data" data-upload>
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <p>Fotografa scontrini, ricevute e fatture mediche oppure carica dei PDF. I dati vengono estratti automaticamente; poi li controlli e confermi.</p>
+  <div class="dropzone" data-dropzone>
+    <div class="pick">
+      <label class="btn primary" for="camera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        Scatta una foto</label>
+      <input id="camera" name="files" type="file" accept="image/*" capture="environment" data-source>
+      <label class="btn" for="gallery">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg>
+        Scegli foto o PDF</label>
+      <input id="gallery" name="files" type="file" accept="image/*,application/pdf" multiple data-source>
+    </div>
+    <p class="muted" data-drop-hint>Puoi anche trascinare qui i file. Massimo {{ max_files }} file da {{ max_mb }} MB.</p>
+    <input type="file" name="files" multiple class="hidden" data-collector aria-hidden="true" tabindex="-1">
+    <div class="previews" data-previews></div>
+  </div>
+  <div class="alert info">
+    <strong>Per una lettura migliore:</strong> appoggia lo scontrino su un piano scuro, inquadralo tutto, evita riflessi e ombre forti.
+    Se lo scontrino è lungo, puoi fotografarlo in più parti e unire i dati.
+  </div>
+  <div class="actions">
+    <button class="btn primary" type="submit" data-submit>Elabora</button>
+    <a class="btn" href="/receipts/manual">Inserisci a mano</a>
+  </div>
+</form>
+<div class="overlay hidden" data-overlay role="alertdialog" aria-live="assertive" aria-label="Elaborazione in corso">
+  <div class="card"><div class="spinner"></div><p><strong>Lettura dei documenti in corso…</strong></p><p class="muted">Può richiedere qualche secondo per foto.</p></div>
+</div>
+{% endblock %}

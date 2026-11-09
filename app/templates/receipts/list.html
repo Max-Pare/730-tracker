@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Archivio · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Archivio</h1>
+  <a class="btn primary" href="/receipts/new">Aggiungi</a>
+</div>
+
+<details class="card no-print" {% if filters.category or filters.status or filters.beneficiary or filters.esito or filters.sort != 'date_desc' %}open{% endif %}>
+  <summary>Filtri e ricerca</summary>
+  <form method="get" action="/receipts" class="filters">
+    <div class="wide"><label for="q">Cerca</label>
+      <input id="q" type="search" name="q" value="{{ filters.q }}" placeholder="Fornitore, P.IVA, testo dello scontrino…"></div>
+    <div><label for="year">Anno</label>
+      <select id="year" name="year"><option value="">Tutti</option>
+        {% for y in years %}<option value="{{ y }}" {% if filters.year == y|string %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></div>
+    <div><label for="category">Categoria</label>
+      <select id="category" name="category"><option value="">Tutte</option>
+        {% for c in CATEGORIES.values() %}<option value="{{ c.code }}" {% if filters.category == c.code %}selected{% endif %}>{{ c.label }}</option>{% endfor %}</select></div>
+    <div><label for="status">Stato</label>
+      <select id="status" name="status"><option value="">Tutti</option>
+        {% for k, v in STATUSES.items() %}<option value="{{ k }}" {% if filters.status == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div><label for="esito">Esito</label>
+      <select id="esito" name="esito"><option value="">Tutti</option>
+        {% for k, v in [('detraibile','Detraibile'),('da_verificare','Da verificare'),('non_detraibile','Non detraibile')] %}<option value="{{ k }}" {% if filters.esito == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div><label for="beneficiary">Persona</label>
+      <select id="beneficiary" name="beneficiary"><option value="">Tutte</option>
+        {% for k, v in profile.beneficiary_options() %}<option value="{{ k }}" {% if filters.beneficiary == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div><label for="sort">Ordina per</label>
+      <select id="sort" name="sort">
+        {% for k, v in [('date_desc','Data (recenti)'),('date_asc','Data (meno recenti)'),('amount_desc','Importo (alto)'),('amount_asc','Importo (basso)'),('created_desc','Ultimi caricati')] %}<option value="{{ k }}" {% if filters.sort == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div class="wide actions"><button class="btn primary" type="submit">Applica</button><a class="btn" href="/receipts">Azzera</a></div>
+  </form>
+</details>
+
+<div class="card">
+  <p class="muted">{{ count }} {{ 'documento' if count == 1 else 'documenti' }} · totale <strong class="num">€ {{ total | eur }}</strong>
+    {% if count %}· <a href="/export.csv?year={{ filters.year }}">CSV</a> · <a href="/export.zip?year={{ filters.year }}">ZIP</a>{% endif %}</p>
+  {% if not items %}
+    <p>Nessun documento{% if filters.q or filters.category or filters.status or filters.year %} con questi filtri{% endif %}.</p>
+  {% endif %}
+  <ul class="list">
+    {% for r, ev in items %}{% set d = r.data %}
+    <li><a class="rec item" href="/receipts/{{ r.id }}">
+      <span class="title">{{ d.provider_name or (d.original_filename or 'Documento senza nome') }}</span>
+      <span class="amount">{% if d.amount_cents is not none %}€ {{ d.amount_cents | eur }}{% else %}—{% endif %}</span>
+      <span class="meta">{{ d.date | date_it or 'senza data' }} · {{ CATEGORIES[d.category].label if d.category else 'senza categoria' }} · {{ profile.beneficiary_label(d.beneficiary) }}</span>
+      <span class="tags">{% if d.status != 'verificato' %}<span class="chip {{ d.status }}">{{ STATUSES[d.status] }}</span>{% endif %}<span class="chip {{ ev.status }}">{{ ev.label }}</span></span>
+    </a></li>
+    {% endfor %}
+  </ul>
+  {% if pages > 1 %}
+  {% set qs = 'year=' ~ filters.year ~ '&category=' ~ filters.category ~ '&status=' ~ filters.status ~ '&beneficiary=' ~ filters.beneficiary ~ '&esito=' ~ filters.esito ~ '&q=' ~ (filters.q | urlencode) ~ '&sort=' ~ filters.sort %}
+  <nav class="pager" aria-label="Pagine">
+    {% if page > 1 %}<a class="btn small" href="/receipts?{{ qs }}&page={{ page - 1 }}">‹ Precedente</a>{% endif %}
+    <span class="muted">Pagina {{ page }} di {{ pages }}</span>
+    {% if page < pages %}<a class="btn small" href="/receipts?{{ qs }}&page={{ page + 1 }}">Successiva ›</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

@@ -28,6 +28,7 @@ def _font(size: int):
 def render_receipt(text: str, font_size: int = 26, width: int = 760) -> Image.Image:
     font = _font(font_size)
     lines = text.splitlines()
+    width = max(width, 80 + int(max((font.getlength(ln) for ln in lines), default=0)))
     line_h = int(font_size * 1.45)
     height = 60 + line_h * len(lines) + 60
     paper = Image.new("RGB", (width, height), (247, 246, 240))

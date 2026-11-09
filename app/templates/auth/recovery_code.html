@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Codice di recupero · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h1>{% if recovered %}Accesso ripristinato{% elif regenerated %}Nuovo codice di recupero{% else %}Account creato{% endif %}</h1>
+    <p>Questo è il tuo <strong>codice di recupero</strong>. Ti serve per reimpostare la password se la dimentichi.
+      Viene mostrato <strong>una sola volta</strong>{% if recovered or regenerated %} e sostituisce quello precedente{% endif %}.</p>
+    <div class="code" id="recovery-code">{{ recovery_code }}</div>
+    <div class="actions no-print">
+      <button class="btn" type="button" data-copy="#recovery-code">Copia</button>
+      <button class="btn" type="button" data-print>Stampa</button>
+    </div>
+    <ul class="steps">
+      <li>Conservalo in un posto sicuro (gestore di password, stampato in un cassetto).</li>
+      <li>Non condividerlo: chi lo possiede può accedere ai tuoi dati.</li>
+    </ul>
+    <form action="/dashboard" method="get" class="no-print">
+      <label class="check"><input type="checkbox" required> Ho salvato il codice di recupero</label>
+      <div class="actions"><button class="btn primary block" type="submit">Continua</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

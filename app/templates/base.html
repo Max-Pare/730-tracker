@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}{{ app_name }}{% endblock %}</title>
+<meta name="description" content="Archivio delle spese sanitarie detraibili per il 730">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0f766e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="730 Tracker">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32.png">
+<link rel="stylesheet" href="/static/style.css?v={{ APP_VERSION }}">
+<script src="/static/app.js?v={{ APP_VERSION }}" defer></script>
+</head>
+<body>
+{% macro icon(name) -%}
+{%- if name == 'home' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4v3h6V4zM4 20h6v-3H4z"/></svg>
+{%- elif name == 'list' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+{%- elif name == 'add' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg>
+{%- elif name == 'user' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+{%- elif name == 'camera' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+{%- elif name == 'file' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg>
+{%- elif name == 'download' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+{%- endif -%}
+{%- endmacro %}
+<header class="topbar">
+  <a class="brand" href="/"><img src="/static/icons/icon-192.png" alt="" width="28" height="28"><span>730 Tracker</span></a>
+  {% if user %}
+  <nav class="topnav" aria-label="Principale">
+    <a href="/dashboard" {% if nav == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+    <a href="/receipts" {% if nav == 'receipts' %}aria-current="page"{% endif %}>Archivio</a>
+    <a href="/receipts/new" {% if nav == 'new' %}aria-current="page"{% endif %}>Aggiungi</a>
+    <a href="/account" {% if nav == 'account' %}aria-current="page"{% endif %}>Account</a>
+    {% if user.is_admin %}<a href="/admin" {% if nav == 'admin' %}aria-current="page"{% endif %}>Amministrazione</a>{% endif %}
+  </nav>
+  <span class="spacer"></span>
+  <small class="muted">{{ user.username }}</small>
+  <form method="post" action="/logout"><button class="link" type="submit">Esci</button></form>
+  {% endif %}
+</header>
+<main class="container">
+  {% if flash %}<div class="flash flash-{{ flash.kind }}" role="status">{{ flash.message }}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+{% if user %}
+<nav class="tabbar" aria-label="Navigazione">
+  <a href="/dashboard" {% if nav == 'dashboard' %}aria-current="page"{% endif %}>{{ icon('home') }}<span>Dashboard</span></a>
+  <a href="/receipts" {% if nav == 'receipts' %}aria-current="page"{% endif %}>{{ icon('list') }}<span>Archivio</span></a>
+  <a href="/receipts/new" class="add" {% if nav == 'new' %}aria-current="page"{% endif %}>{{ icon('add') }}<span>Aggiungi</span></a>
+  <a href="/account" {% if nav in ('account', 'admin') %}aria-current="page"{% endif %}>{{ icon('user') }}<span>Account</span></a>
+</nav>
+{% endif %}
+</body>
+</html>

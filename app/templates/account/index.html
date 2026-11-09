@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Account · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Account</h1>{% if user.is_admin %}<a class="btn" href="/admin">Amministrazione</a>{% endif %}</div>
+{% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+
+<div class="grid grid-2">
+  <section class="card">
+    <h2>I tuoi dati</h2>
+    <p class="muted">Usati per riconoscere automaticamente il tuo codice fiscale sugli scontrini. Sono cifrati come tutto il resto.</p>
+    <form method="post" action="/account/profile">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field"><label for="full_name">Nome e cognome</label>
+        <input id="full_name" name="full_name" type="text" autocomplete="name" value="{{ profile.full_name or '' }}"></div>
+      <div class="field"><label for="tax_code">Codice fiscale</label>
+        <input id="tax_code" name="tax_code" type="text" autocapitalize="characters" spellcheck="false" maxlength="16" value="{{ profile.tax_code or '' }}"></div>
+      <button class="btn primary" type="submit">Salva</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Familiari</h2>
+    <p class="muted">Le spese sanitarie dei familiari <strong>fiscalmente a carico</strong> sono detraibili da te.</p>
+    {% if profile.family %}
+    <ul class="list">
+      {% for m in profile.family %}
+      <li class="rec">
+        <span class="title">{{ m.name }}</span>
+        <span class="chips"><span class="chip {{ 'detraibile' if m.dependent else 'non_detraibile' }}">{{ 'a carico' if m.dependent else 'non a carico' }}</span></span>
+        <span class="meta">{{ RELATIONS.get(m.relation, '') }}{% if m.tax_code %} · {{ m.tax_code }}{% endif %}</span>
+        <span class="chips">
+          <form method="post" action="/account/family/{{ m.id }}/toggle"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn small" type="submit">{{ 'Non a carico' if m.dependent else 'A carico' }}</button></form>
+          <form method="post" action="/account/family/{{ m.id }}/delete"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn small danger" type="submit" data-confirm="Rimuovere {{ m.name }}? Le spese già associate resteranno ma senza nome.">Rimuovi</button></form>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <details {% if not profile.family %}open{% endif %}><summary>Aggiungi familiare</summary>
+      <form method="post" action="/account/family">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="field"><label for="m_name">Nome</label><input id="m_name" name="name" type="text" required></div>
+        <div class="row-2">
+          <div class="field"><label for="m_cf">Codice fiscale</label><input id="m_cf" name="tax_code" type="text" autocapitalize="characters" maxlength="16" spellcheck="false"></div>
+          <div class="field"><label for="m_rel">Relazione</label><select id="m_rel" name="relation">{% for k, v in RELATIONS.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+        </div>
+        <div class="field"><label class="check"><input type="checkbox" name="dependent" checked> Fiscalmente a carico</label></div>
+        <button class="btn" type="submit">Aggiungi</button>
+      </form>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Password</h2>
+    <form method="post" action="/account/password">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="text" name="username" value="{{ user.username }}" autocomplete="username" class="hidden" readonly tabindex="-1" aria-hidden="true">
+      <div class="field"><label for="cur">Password attuale</label><input id="cur" name="current_password" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="np1">Nuova password</label><input id="np1" name="new_password" type="password" autocomplete="new-password" minlength="10" required></div>
+      <div class="field"><label for="np2">Ripeti nuova password</label><input id="np2" name="new_password2" type="password" autocomplete="new-password" minlength="10" required></div>
+      <button class="btn primary" type="submit">Cambia password</button>
+    </form>
+    <h3>Codice di recupero</h3>
+    <p class="muted">Genera un nuovo codice se hai perso quello vecchio (il precedente smette di funzionare).</p>
+    <form method="post" action="/account/recovery">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field"><label for="rc_pw">Password attuale</label><input id="rc_pw" name="current_password" type="password" autocomplete="current-password" required></div>
+      <button class="btn" type="submit">Genera nuovo codice</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Dispositivi collegati</h2>
+    <ul class="list">
+      {% for s in sessions %}
+      <li class="rec">
+        <span class="title">{{ s.label }}{% if s.current %} <span class="chip verificato">questo</span>{% endif %}</span>
+        <span class="chips"><form method="post" action="/account/sessions/{{ s.id }}/revoke"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn small" type="submit">Disconnetti</button></form></span>
+        <span class="meta">{{ 'App' if s.kind == 'api' else 'Web' }} · ultimo accesso {{ s.last_seen_at | date_it }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    <h3>App Android</h3>
+    <p class="muted">Nell'app inserisci l'indirizzo di questo server e accedi con le stesse credenziali.</p>
+    <h3>iPhone e iPad</h3>
+    <p class="muted">In Safari tocca Condividi → «Aggiungi alla schermata Home» per usare 730 Tracker come un'app.</p>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Elimina account</h2>
+  <p>Elimina definitivamente il tuo account, tutti i documenti e le immagini. L'operazione non è reversibile: esporta prima l'archivio ZIP se ti serve.</p>
+  <form method="post" action="/account/delete">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="row-2">
+      <div class="field"><label for="del_pw">Password</label><input id="del_pw" name="current_password" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="del_confirm">Scrivi «{{ user.username }}»</label><input id="del_confirm" name="confirm" type="text" autocomplete="off" required></div>
+    </div>
+    <button class="btn danger" type="submit" data-confirm="Eliminare definitivamente l'account e tutti i dati?">Elimina account e dati</button>
+  </form>
+</section>
+<p class="footer-note">730 Tracker {{ APP_VERSION }} · software libero con licenza AGPL-3.0-or-later.</p>
+{% endblock %}

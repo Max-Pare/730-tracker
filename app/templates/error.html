@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Errore {{ code }} · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>{% if code == 404 %}Non trovato{% elif code == 403 %}Accesso negato{% else %}Errore{% endif %}</h1>
+  <p>{{ message }}</p>
+  <a class="btn" href="/">Torna all'inizio</a>
+</div>
+{% endblock %}

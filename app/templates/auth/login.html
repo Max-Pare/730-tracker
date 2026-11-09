@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Accedi · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h1>Accedi</h1>
+    {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="field"><label for="username">Nome utente</label>
+        <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required value="{{ username or '' }}" autofocus></div>
+      <div class="field"><label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary block" type="submit">Accedi</button>
+    </form>
+  </div>
+  <p class="muted">Password dimenticata? <a href="/recover">Usa il codice di recupero</a>.</p>
+  {% if registration == 'open' %}<p class="muted">Non hai un account? <a href="/register">Registrati</a>.</p>{% endif %}
+  <p class="footer-note">I tuoi dati sono cifrati con una chiave legata alla tua password: nemmeno l'amministratore può leggerli.</p>
+</div>
+{% endblock %}

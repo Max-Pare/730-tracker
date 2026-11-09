@@ -1,0 +1,49 @@
+{# Server-rendered SVG charts: no JavaScript, no external libraries. #}
+{% macro month_bars(months) -%}
+{%- set W = 640 -%}{%- set H = 200 -%}{%- set top = 12 -%}{%- set bottom = 24 -%}{%- set left = 4 -%}
+{%- set ns = namespace(mx=0) -%}
+{%- for m in months -%}{%- if m.total_cents > ns.mx -%}{%- set ns.mx = m.total_cents -%}{%- endif -%}{%- endfor -%}
+{%- set mx = ns.mx if ns.mx > 0 else 1 -%}
+{%- set slot = (W - left) / 12 -%}{%- set bw = slot * 0.62 -%}{%- set ph = H - top - bottom -%}
+<svg class="chart" viewBox="0 0 {{ W }} {{ H }}" role="img" aria-label="Spese per mese">
+  <line class="grid-line" x1="0" x2="{{ W }}" y1="{{ H - bottom }}" y2="{{ H - bottom }}"/>
+  {%- for m in months %}
+  {%- set x = left + loop.index0 * slot + (slot - bw) / 2 -%}
+  {%- set ht = (m.total_cents / mx * ph) | round(1) -%}
+  {%- set he = (m.eligible_cents / mx * ph) | round(1) %}
+  <g><title>{{ m.label }}: totale € {{ m.total_cents | eur }}, detraibile € {{ m.eligible_cents | eur }}</title>
+    {% if ht > 0 %}<rect class="bar-total" x="{{ x | round(1) }}" y="{{ H - bottom - ht }}" width="{{ bw | round(1) }}" height="{{ ht }}" rx="4"/>{% endif %}
+    {% if he > 0 %}<rect class="bar-main" x="{{ x | round(1) }}" y="{{ H - bottom - he }}" width="{{ bw | round(1) }}" height="{{ he }}" rx="4"/>{% endif %}
+    <text x="{{ (x + bw / 2) | round(1) }}" y="{{ H - 6 }}" text-anchor="middle">{{ m.label }}</text>
+  </g>
+  {%- endfor %}
+</svg>
+<div class="legend"><span>Totale speso</span><span class="main">Detraibile</span></div>
+{%- endmacro %}
+
+{% macro hbars(buckets, empty_text) -%}
+{%- set ns = namespace(mx=0) -%}
+{%- for b in buckets -%}{%- if b.total_cents > ns.mx -%}{%- set ns.mx = b.total_cents -%}{%- endif -%}{%- endfor -%}
+{%- set mx = ns.mx if ns.mx > 0 else 1 -%}
+{% if buckets %}
+<div class="hbars">
+  {% for b in buckets %}
+  <div class="hbar">
+    <div class="row"><span>{{ b.label }} <small>({{ b.count }})</small></span><span class="num">€ {{ b.total_cents | eur }}</span></div>
+    <svg width="100%" height="8" aria-hidden="true">
+      <rect class="bar-total" x="0" y="0" width="{{ [b.total_cents / mx * 100, 1] | max | round(2) }}%" height="8" rx="4"/>
+      {% if b.eligible_cents %}<rect class="bar-main" x="0" y="0" width="{{ [b.eligible_cents / mx * 100, 1] | max | round(2) }}%" height="8" rx="4"/>{% endif %}
+    </svg>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="muted">{{ empty_text }}</p>{% endif %}
+{%- endmacro %}
+
+{% macro progress(value, max) -%}
+{%- set pct = ((value / max * 100) if max else 0) -%}{%- set pct = 100 if pct > 100 else pct -%}
+<div class="progress"><svg width="100%" height="10" role="img" aria-label="{{ pct | round | int }}%">
+  <rect class="bar-total" x="0" y="0" width="100%" height="10" rx="5"/>
+  {% if pct > 0 %}<rect class="bar-main" x="0" y="0" width="{{ [pct, 2] | max | round(2) }}%" height="10" rx="5"/>{% endif %}
+</svg></div>
+{%- endmacro %}

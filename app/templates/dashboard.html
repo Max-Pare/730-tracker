@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "_charts.html" import month_bars, hbars, progress %}
+{% block title %}Dashboard {{ year }} · {{ app_name }}{% endblock %}
+{% block content %}
+{% set s = summary %}
+<div class="page-head">
+  <h1>Spese {{ year }}</h1>
+  <form method="get" action="/dashboard" class="no-print">
+    <label class="sr-only" for="year">Anno</label>
+    <select id="year" name="year" data-autosubmit>
+      {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+    <noscript><button class="btn small" type="submit">Vai</button></noscript>
+  </form>
+</div>
+<p class="muted">Spese pagate nel {{ year }}: vanno nel modello <strong>{{ s.return_label }}</strong>.</p>
+
+{% if drafts_all %}
+<div class="alert info">Hai <strong>{{ drafts_all | docs }}</strong> da rivedere dopo la scansione.
+  <a href="/receipts?status=bozza&sort=created_desc">Rivedi le bozze</a></div>
+{% endif %}
+
+{% if not has_records %}
+<div class="card">
+  <h2>Inizia dal primo scontrino</h2>
+  <p>Fotografa uno scontrino della farmacia o una fattura medica: i dati vengono letti automaticamente, tu controlli e confermi.</p>
+  <p class="muted">Suggerimento: indica il tuo codice fiscale e quelli dei familiari a carico nella pagina <a href="/account">Account</a>, così le spese vengono attribuite in automatico.</p>
+  <a class="btn primary" href="/receipts/new">Aggiungi un documento</a>
+</div>
+{% endif %}
+
+<section class="kpis" aria-label="Indicatori">
+  <div class="kpi hero">
+    <div class="label">Detrazione stimata (19%)</div>
+    <div class="value">€ {{ s.detraction_total_cents | eur }}</div>
+    <div class="sub">{% if s.vet_detraction_cents %}di cui veterinarie € {{ s.vet_detraction_cents | eur }}{% else %}su spese sanitarie oltre la franchigia{% endif %}</div>
+  </div>
+  <div class="kpi"><div class="label">Spese detraibili</div><div class="value">€ {{ (s.sanitarie_eligible_cents + s.vet_eligible_cents) | eur }}</div><div class="sub">sanitarie € {{ s.sanitarie_eligible_cents | eur }}</div></div>
+  <div class="kpi"><div class="label">Totale speso</div><div class="value">€ {{ s.total_spent_cents | eur }}</div><div class="sub">{{ s.receipts_count | docs }}</div></div>
+  <div class="kpi"><div class="label">Da verificare</div><div class="value">€ {{ s.uncertain_cents | eur }}</div><div class="sub">{{ s.to_verify_count }} segnati da verificare</div></div>
+  <div class="kpi"><div class="label">Non detraibili</div><div class="value">€ {{ s.non_deductible_cents | eur }}</div><div class="sub">{{ s.non_deductible_count | docs }}</div></div>
+</section>
+
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Franchigia</h2>
+    {% if s.franchise_remaining_cents > 0 %}
+      <p>Mancano <strong class="num">€ {{ s.franchise_remaining_cents | eur }}</strong> per superare la franchigia di € {{ s.franchise_cents | eur }}: sotto questa soglia le spese sanitarie non danno detrazione.</p>
+    {% else %}
+      <p>Franchigia di € {{ s.franchise_cents | eur }} superata. Base detraibile: <strong class="num">€ {{ s.sanitarie_base_cents | eur }}</strong>.</p>
+    {% endif %}
+    {{ progress(s.sanitarie_eligible_cents, s.franchise_cents) }}
+    {% if s.instalments_possible %}<div class="alert info">Le spese sanitarie superano € 15.493,71: puoi scegliere di ripartire la detrazione in 4 rate annuali.</div>{% endif %}
+    {% if s.vet_eligible_cents %}
+      <h3>Spese veterinarie</h3>
+      <p class="muted">Detraibili € {{ s.vet_eligible_cents | eur }} (massimo considerato € 550, franchigia € 129,11): detrazione € {{ s.vet_detraction_cents | eur }}.</p>
+    {% endif %}
+  </section>
+  <section class="card">
+    <h2>Per mese</h2>
+    {{ month_bars(s.by_month) }}
+  </section>
+  <section class="card">
+    <h2>Per categoria</h2>
+    {{ hbars(s.by_category, "Nessuna spesa registrata.") }}
+  </section>
+  <section class="card">
+    <h2>Per persona</h2>
+    {{ hbars(s.by_beneficiary, "Nessuna spesa registrata.") }}
+  </section>
+</div>
+
+<section class="card">
+  <h2>Da controllare</h2>
+  {% set warn = s.issues | selectattr('severity', 'equalto', 'warning') | list %}
+  {% set info = s.issues | selectattr('severity', 'equalto', 'info') | list %}
+  {% if not s.issues %}<p class="muted">Nessuna segnalazione per il {{ year }}. 👍</p>{% endif %}
+  <ul class="list issues">
+    {% for i in (warn + info)[:30] %}
+    <li><a href="/receipts/{{ i.receipt_id }}">{{ i.title }}</a> <span class="chip {{ 'da_verificare' if i.severity == 'warning' else 'bozza' }}">{{ 'Attenzione' if i.severity == 'warning' else 'Nota' }}</span><br><small>{{ i.message }}</small></li>
+    {% endfor %}
+  </ul>
+  {% if (warn + info) | length > 30 %}<p class="muted">… e altre {{ (warn + info) | length - 30 }} segnalazioni.</p>{% endif %}
+</section>
+
+<section class="card no-print">
+  <h2>Esporta</h2>
+  <p class="muted">Per il CAF o il commercialista: elenco in CSV (Excel) oppure archivio ZIP con elenco, riepilogo e tutti i documenti.</p>
+  <div class="actions">
+    <a class="btn" href="/export.csv?year={{ year }}">CSV {{ year }}</a>
+    <a class="btn" href="/export.zip?year={{ year }}">ZIP {{ year }} con documenti</a>
+    <a class="btn" href="/receipts?year={{ year }}">Vedi i documenti</a>
+  </div>
+</section>
+<p class="footer-note">Stima indicativa basata sulle regole del quadro E (19% oltre € 129,11; tracciabilità dei pagamenti dal 2020). Verifica sempre con il 730 precompilato e con il tuo CAF.</p>
+{% endblock %}

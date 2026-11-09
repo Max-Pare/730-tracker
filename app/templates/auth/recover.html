@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Recupero accesso · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h1>Recupera l'accesso</h1>
+    <p class="muted">Inserisci il codice di recupero ricevuto alla registrazione e scegli una nuova password. Tutti i dispositivi collegati verranno disconnessi.</p>
+    {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/recover">
+      <div class="field"><label for="username">Nome utente</label>
+        <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" required value="{{ username or '' }}"></div>
+      <div class="field"><label for="recovery_code">Codice di recupero</label>
+        <input id="recovery_code" name="recovery_code" type="text" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" required placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"></div>
+      <div class="field"><label for="password">Nuova password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="10"></div>
+      <div class="field"><label for="password2">Ripeti la nuova password</label>
+        <input id="password2" name="password2" type="password" autocomplete="new-password" required minlength="10"></div>
+      <button class="btn primary block" type="submit">Reimposta password</button>
+    </form>
+  </div>
+  <p class="muted"><a href="/login">Torna all'accesso</a></p>
+</div>
+{% endblock %}

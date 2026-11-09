@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Registrazione · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card">
+    <h1>{% if first_user %}Configura 730 Tracker{% else %}Crea il tuo account{% endif %}</h1>
+    {% if first_user %}<div class="alert info">Sei il primo utente: questo account sarà <strong>amministratore</strong>. Potrà gestire gli account e gli inviti, ma non vedere i dati degli altri.</div>{% endif %}
+    {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+    {% if allowed %}
+    <form method="post" action="/register">
+      <input type="hidden" name="invite" value="{{ invite }}">
+      <div class="field"><label for="username">Nome utente</label>
+        <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9][a-zA-Z0-9._\-]{2,31}" value="{{ username or '' }}">
+        <div class="hint">3–32 caratteri: lettere, numeri, punto, trattino, underscore.</div></div>
+      <div class="field"><label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="10">
+        <div class="hint">Almeno 10 caratteri. Usa una frase lunga e unica.</div></div>
+      <div class="field"><label for="password2">Ripeti la password</label>
+        <input id="password2" name="password2" type="password" autocomplete="new-password" required minlength="10"></div>
+      <div class="alert warn">
+        La password protegge la chiave che cifra i tuoi dati. Dopo la registrazione riceverai un <strong>codice di recupero</strong>:
+        se perdi sia la password sia il codice, i dati non sono recuperabili da nessuno.
+      </div>
+      <button class="btn primary block" type="submit">Crea account</button>
+    </form>
+    {% endif %}
+  </div>
+  <p class="muted">Hai già un account? <a href="/login">Accedi</a>.</p>
+</div>
+{% endblock %}

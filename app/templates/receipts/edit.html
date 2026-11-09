@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nuova spesa' if is_new else (rec.data.provider_name or 'Documento') }} · {{ app_name }}{% endblock %}
+{% block content %}
+{% set d = rec.data %}
+{% set draft = d.status == 'bozza' %}
+{% set conf = d.ocr.field_confidence if (d.ocr and d.source == 'ocr') else {} %}
+{% macro v(name, fallback) -%}{{ form.get(name, '') if form else (fallback if fallback is not none else '') }}{%- endmacro %}
+{% macro low(key) -%}{% if draft and d.source == 'ocr' and (conf.get(key, 0) < 0.6) %}lowconf{% endif %}{%- endmacro %}
+
+<div class="page-head">
+  <h1>{% if is_new %}Nuova spesa{% elif draft %}Controlla i dati{% else %}{{ d.provider_name or 'Documento' }}{% endif %}</h1>
+  {% if not is_new %}<span class="chip {{ d.status }}">{{ STATUSES[d.status] }}</span>{% if ev %}<span class="chip {{ ev.status }}">{{ ev.label }}</span>{% endif %}{% endif %}
+</div>
+
+{% if errors %}<div class="alert error" role="alert"><strong>Controlla il modulo:</strong><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+{% if duplicates %}
+<div class="alert warn"><strong>Possibile duplicato.</strong> Esiste già un documento simile:
+  {% for x in duplicates[:3] %}<a href="/receipts/{{ x.id }}">{{ x.data.provider_name or 'documento' }} del {{ x.data.date | date_it }} (€ {{ x.data.amount_cents | eur }})</a>{% if not loop.last %}, {% endif %}{% endfor %}.</div>
+{% endif %}
+
+<div class="grid {% if d.files %}grid-review{% endif %}">
+  {% if d.files %}
+  <section class="card doc-view" data-docview>
+    {% set first = 'scan' if d.files.get('scan') else 'original' %}
+    <div class="doc-tabs">
+      {% if d.files.get('scan') %}<button type="button" class="btn small" data-img-src="/receipts/{{ rec.id }}/file/scan" aria-pressed="true">Scansione</button>{% endif %}
+      {% if d.files.get('original') and d.file_types.get('original', '').startswith('image/') %}<button type="button" class="btn small" data-img-src="/receipts/{{ rec.id }}/file/original" aria-pressed="{{ 'true' if first == 'original' else 'false' }}">Foto originale</button>{% endif %}
+      {% if d.file_types.get('original') == 'application/pdf' %}<a class="btn small" href="/receipts/{{ rec.id }}/file/original" target="_blank" rel="noopener">Apri PDF</a>{% endif %}
+      <a class="btn small" href="/receipts/{{ rec.id }}/file/original?download=1">Scarica</a>
+    </div>
+    {% if d.files.get('scan') or d.file_types.get('original', '').startswith('image/') %}
+    <img src="/receipts/{{ rec.id }}/file/{{ first }}" alt="Immagine del documento" data-docimg>
+    <p class="muted"><small>Tocca l'immagine per ingrandirla.</small></p>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <section>
+    {% if ev and (ev.reasons or ev.warnings) %}
+    <div class="alert {{ 'error' if ev.status == 'non_detraibile' else ('warn' if ev.status == 'da_verificare' else 'info') }}">
+      <strong>{{ ev.label }}.</strong>
+      <ul>{% for r in ev.reasons + ev.warnings %}<li>{{ r }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if draft and d.ocr and d.ocr.warnings %}
+    <div class="alert info"><strong>Note della lettura automatica</strong><ul>{% for w in d.ocr.warnings %}<li>{{ w }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <form class="card" method="post" action="{{ '/receipts/manual' if is_new else '/receipts/' ~ rec.id }}" novalidate>
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="row-2">
+        <div class="field {{ low('date') }}"><label for="date">Data pagamento</label>
+          <input id="date" name="date" type="date" value="{{ v('date', d.date.isoformat() if d.date else '') }}" max="9999-12-31"></div>
+        <div class="field {{ low('amount_cents') }}"><label for="amount">Importo totale €</label>
+          <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" value="{{ v('amount', d.amount_cents | amount_input) }}" placeholder="0,00"></div>
+      </div>
+      <div class="field {{ low('category') }}"><label for="category">Categoria</label>
+        <select id="category" name="category">
+          <option value="">— scegli —</option>
+          {% for c in CATEGORIES.values() %}<option value="{{ c.code }}" {% if v('category', d.category) == c.code %}selected{% endif %}>{{ c.label }}</option>{% endfor %}
+        </select>
+        <div class="hint">{% if d.category %}{{ CATEGORIES[d.category].hint }}{% endif %}</div></div>
+      <div class="field {{ low('provider_name') }}"><label for="provider_name">Fornitore</label>
+        <input id="provider_name" name="provider_name" type="text" value="{{ v('provider_name', d.provider_name) }}" placeholder="Farmacia, medico, struttura…"></div>
+      <div class="row-2">
+        <div class="field {{ low('payment_method') }}"><label for="payment_method">Pagamento</label>
+          <select id="payment_method" name="payment_method">
+            {% for k, lbl in PAYMENT_METHODS.items() %}<option value="{{ k }}" {% if v('payment_method', d.payment_method) == k %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="beneficiary">Spesa per</label>
+          <select id="beneficiary" name="beneficiary">
+            {% for k, lbl in profile.beneficiary_options() %}<option value="{{ k }}" {% if v('beneficiary', d.beneficiary) == k %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+          </select></div>
+      </div>
+      <div class="field"><label class="check"><input type="checkbox" name="ssn_provider" {% if (form and form.get('ssn_provider')) or (not form and d.ssn_provider) %}checked{% endif %}>
+        Struttura pubblica o accreditata SSN</label>
+        <div class="hint">Per queste strutture la detrazione spetta anche con pagamento in contanti.</div></div>
+      <div class="row-2">
+        <div class="field {{ low('provider_vat') }}"><label for="provider_vat">P.IVA fornitore</label>
+          <input id="provider_vat" name="provider_vat" type="text" inputmode="numeric" autocomplete="off" value="{{ v('provider_vat', d.provider_vat) }}"></div>
+        <div class="field {{ low('document_number') }}"><label for="document_number">N. documento</label>
+          <input id="document_number" name="document_number" type="text" autocomplete="off" value="{{ v('document_number', d.document_number) }}"></div>
+      </div>
+      <div class="field {{ low('patient_tax_code') }}"><label for="patient_tax_code">Codice fiscale sul documento</label>
+        <input id="patient_tax_code" name="patient_tax_code" type="text" autocapitalize="characters" autocomplete="off" spellcheck="false" value="{{ v('patient_tax_code', d.patient_tax_code) }}">
+        <div class="hint">Deve essere quello di chi sostiene la spesa (te o il familiare a carico).</div></div>
+      <details {% if d.deductible_cents is not none or d.description or d.notes or d.tags or d.provider_tax_code %}open{% endif %}>
+        <summary>Altri dettagli</summary>
+        <div class="field"><label for="deductible">Importo detraibile € (se diverso dal totale)</label>
+          <input id="deductible" name="deductible" type="text" inputmode="decimal" autocomplete="off" value="{{ v('deductible', d.deductible_cents | amount_input) }}" placeholder="uguale al totale">
+          <div class="hint">Ad esempio se lo scontrino include parafarmaci o cosmetici.</div></div>
+        <div class="field"><label for="provider_tax_code">Codice fiscale fornitore</label>
+          <input id="provider_tax_code" name="provider_tax_code" type="text" autocomplete="off" value="{{ v('provider_tax_code', d.provider_tax_code) }}"></div>
+        <div class="field"><label for="description">Descrizione</label>
+          <input id="description" name="description" type="text" value="{{ v('description', d.description) }}" placeholder="es. visita dermatologica"></div>
+        <div class="field"><label for="tags">Etichette</label>
+          <input id="tags" name="tags" type="text" value="{{ v('tags', d.tags | join(', ')) }}" placeholder="separate da virgola"></div>
+        <div class="field"><label for="notes">Note</label>
+          <textarea id="notes" name="notes">{{ v('notes', d.notes) }}</textarea></div>
+      </details>
+      <div class="actions">
+        <button class="btn primary" type="submit" name="action" value="verify">{{ 'Conferma e salva' if draft or is_new else 'Salva' }}</button>
+        {% if draft %}<button class="btn" type="submit" name="action" value="verify_next">Conferma e prossima bozza</button>{% endif %}
+        <button class="btn" type="submit" name="action" value="later">Salva come da verificare</button>
+      </div>
+    </form>
+
+    {% if d.ocr and d.ocr.items %}
+    <details class="card"><summary>Righe lette dallo scontrino ({{ d.ocr.items | length }})</summary>
+      <table class="tbl"><thead><tr><th>Descrizione</th><th>Importo</th><th>Detraibile</th></tr></thead><tbody>
+      {% for it in d.ocr.items %}<tr><td>{{ it.description }}</td><td class="num">€ {{ it.amount_cents | eur }}</td><td>{{ 'sì' if it.deductible == true else ('no' if it.deductible == false else '?') }}</td></tr>{% endfor %}
+      </tbody></table></details>
+    {% endif %}
+    {% if d.ocr and d.ocr.text %}
+    <details class="card"><summary>Testo riconosciuto</summary>
+      <p class="muted"><small>Confidenza OCR {{ (d.ocr.confidence * 100) | round | int }}% · {{ d.ocr.engine }}</small></p>
+      <pre class="ocr">{{ d.ocr.text }}</pre></details>
+    {% endif %}
+
+    {% if not is_new %}
+    <div class="actions no-print">
+      {% if d.files.get('original') %}
+      <form method="post" action="/receipts/{{ rec.id }}/reprocess" data-busy>
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn" type="submit" data-confirm="Rileggere il documento? I campi verranno sostituiti con i nuovi valori riconosciuti.">Rileggi con OCR</button>
+      </form>
+      {% endif %}
+      <form method="post" action="/receipts/{{ rec.id }}/delete">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn danger" type="submit" data-confirm="Eliminare definitivamente questo documento e le sue immagini?">Elimina</button>
+      </form>
+    </div>
+    <p class="muted"><small>Caricato il {{ rec.created_at | date_it }} · modificato il {{ rec.updated_at | date_it }}{% if d.original_filename %} · file {{ d.original_filename }}{% endif %}</small></p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

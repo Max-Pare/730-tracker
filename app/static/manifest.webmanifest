@@ -1,0 +1,16 @@
+{
+  "name": "730 Tracker",
+  "short_name": "730 Tracker",
+  "description": "Archivio delle spese sanitarie detraibili per il 730",
+  "lang": "it",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f6",
+  "theme_color": "#0f766e",
+  "icons": [
+    {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/static/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

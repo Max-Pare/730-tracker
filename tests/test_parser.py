@@ -132,3 +132,10 @@ def test_parse_amount_input_invalid():
 def test_format_cents():
     assert format_cents(123456) == "1.234,56"
     assert format_cents(5) == "0,05"
+
+
+def test_total_without_cents():
+    r = parse("STUDIO MEDICO\nVisita 120,\nTOTALE 200,\nPagamento bancomat")
+    assert r.amount_cents == 20000 and r.confidence["amount_cents"] < 0.6
+    assert parse("Dott. Bianchi\nTotale € 90\nPOS").amount_cents == 9000
+    assert parse("Dott. Bianchi\nTotale 75 EUR").amount_cents == 7500

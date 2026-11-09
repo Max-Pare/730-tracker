@@ -72,6 +72,22 @@ def amounts_in(line: str) -> list[int]:
     return [cents_from_match(m) for m in AMOUNT_RE.finditer(cleaned)]
 
 
+_LOOSE_AMOUNT_RES = (
+    re.compile(r"(?:€|\bEUR\b|\bEURO\b)\s*(\d{1,6})(?![\d.,]\d)"),
+    re.compile(r"(?<![\d.,])(\d{1,6})\s*(?:€|\bEUR\b|\bEURO\b)"),
+    re.compile(r"(?<![\d.,])(\d{1,6})\s*[,.]\s*$"),
+)
+
+
+def loose_amounts(line: str) -> list[int]:
+    """Whole-euro amounts written without cents ("€ 200", "200 EUR", "TOTALE 200,")."""
+    cleaned = _strip_dates(_fix_digits(line))
+    out: list[int] = []
+    for rx in _LOOSE_AMOUNT_RES:
+        out.extend(int(m.group(1)) * 100 for m in rx.finditer(cleaned))
+    return out
+
+
 def format_cents(cents: int | None) -> str:
     if cents is None:
         return ""
@@ -241,6 +257,9 @@ def extract_total(lines: list[str]) -> tuple[int | None, float, int | None]:
             if not _TOTAL_EXCLUDE.search(_kw(nxt)):
                 values = amounts_in(nxt)
                 weight -= 0.05
+        if not values:
+            values = loose_amounts(line)
+            weight -= 0.25
         if not values:
             continue
         cents = values[-1]
